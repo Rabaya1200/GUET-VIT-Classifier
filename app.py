@@ -9,7 +9,7 @@ from torchvision import transforms
 # --- STEP 1: LOAD THE BRAIN ---
 @st.cache_resource
 def load_vit_model():
-    model = timm.create_model('vit_tiny_patch16_224', pretrained=True)
+    model = timm.create_model('vit_base_patch16_224', pretrained=True)
     model.eval()
     config = timm.data.resolve_model_data_config(model)
     transform = timm.data.create_transform(**config, is_training=False)
