@@ -4,7 +4,7 @@ from PIL import Image
 
 # --- STEP 1: CONFIGURATION ---
 # In a real project, use st.secrets for the API Key
-GOOGLE_API_KEY = "YOUR_API_KEY_HERE" 
+GOOGLE_API_KEY = "AIzaSyBbWtBZcmePuNHBa8OjBgjroCfR9mAzjbo" 
 genai.configure(api_key=GOOGLE_API_KEY)
 model = genai.GenerativeModel('gemini-1.5-flash')
 
