@@ -4,7 +4,7 @@ from PIL import Image
 
 # --- 1. SET UP THE BRAIN ---
 # This looks for the secret key you saved in the Streamlit dashboard
-api_key = st.secrets.get("AIzaSyBbWtBZcmePuNHBa8OjBgjroCfR9mAzjbo")
+api_key = st.secrets.get("GOOGLE_API_KEY")
 
 if not api_key or "AIza" not in api_key:
     st.error("🚨 API Key is missing or invalid!")
