@@ -1,4 +1,7 @@
+torch
+torchvision
+timm
 streamlit
-requests
 pillow
+requests
 
