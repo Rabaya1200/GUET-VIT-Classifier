@@ -20,7 +20,7 @@ model, transform, labels = load_vit_model()
 
 # --- STEP 2: UI DESIGN ---
 st.set_page_config(page_title="GUET AI Lens", layout="centered")
-st.title("🛡️ GUET Transformer (ViT) Smart Lens")
+st.title("🛡️ Vision Transformer (ViT) Smart Lens")
 
 uploaded_file = st.file_uploader("Upload an image...", type=["jpg", "jpeg", "png"])
 
@@ -55,3 +55,5 @@ if uploaded_file:
             main_label = labels[top_idxs[0]].lower()
             st.write(f"The Vision Transformer (ViT) identified this object as a **{main_label}**.")
             st.info("Technical Explanation: Unlike a standard camera, this AI breaks your photo into 196 small patches. It uses 'Self-Attention' to understand how the textures in one part of the image relate to the shapes in another.")
+
+    
