@@ -2,32 +2,42 @@ import streamlit as st
 import google.generativeai as genai
 from PIL import Image
 
-# --- STEP 1: CONFIGURATION ---
-# In a real project, use st.secrets for the API Key
-GOOGLE_API_KEY = "AIzaSyBbWtBZcmePuNHBa8OjBgjroCfR9mAzjbo" 
-genai.configure(api_key=GOOGLE_API_KEY)
+# --- 1. SET UP THE BRAIN ---
+# This looks for the secret key you saved in the Streamlit dashboard
+api_key = st.secrets.get("AIzaSyBbWtBZcmePuNHBa8OjBgjroCfR9mAzjbo")
+
+if not api_key or "AIza" not in api_key:
+    st.error("🚨 API Key is missing or invalid!")
+    st.info("Go to your Streamlit App Settings -> Secrets and paste your key there.")
+    st.stop()
+
+# Initialize the Google AI model
+genai.configure(api_key=api_key)
 model = genai.GenerativeModel('gemini-1.5-flash')
 
-# --- STEP 2: UI DESIGN ---
-st.set_page_config(page_title="Multimodal AI", page_icon="🧠")
-st.title("🧠 Human-Level Image Understanding")
-st.write("This app uses a Multimodal LLM to describe images with context.")
+# --- 2. USER INTERFACE ---
+st.set_page_config(page_title="GUET Smart Vision", page_icon="🤖")
+st.title("🛡️ GUET Smart Vision AI")
+st.write("This AI understands images like a human. Upload your photo to see.")
 
-uploaded_file = st.file_uploader("Upload any image...", type=["jpg", "jpeg", "png"])
+uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
 if uploaded_file:
+    # Display the image you uploaded
     img = Image.open(uploaded_file)
-    st.image(img, caption="Input Image", use_container_width=True)
+    st.image(img, caption="Uploaded Image", use_container_width=True)
     
-    # Let the user ask a specific question or use a default prompt
-    user_query = st.text_input("What do you want to know about this image?", 
-                               "Identify this object and describe its cultural context.")
-    
+    # Analyze button
     if st.button("Analyze Image"):
-        with st.spinner('Thinking like a human...'):
-            # Gemini takes the image and the text together
-            response = model.generate_content([user_query, img])
-            
-            st.subheader("AI Analysis:")
-            st.write(response.text)
-
+        with st.spinner("Thinking..."):
+            try:
+                # We send the image + a specific prompt to the AI
+                prompt = "Identify everything in this image. If it is food, describe what it is and its cultural context."
+                response = model.generate_content([prompt, img])
+                
+                st.success("### AI Analysis:")
+                st.write(response.text)
+                
+            except Exception as e:
+                st.error(f"An error occurred: {e}")
+                st.info("Check if your API key is active at aistudio.google.com")
