@@ -1,30 +1,36 @@
 import streamlit as st
-from google import genai  # Ensure this matches your requirements.txt
+import google.generativeai as genai
 from PIL import Image
+import os
 
-# 1. Fetch Key
+# 1. Secure Setup
 api_key = st.secrets.get("GOOGLE_API_KEY")
 
 if api_key:
-    # 2. FORCE THE STABLE v1 VERSION
-    # This is the critical change to stop the v1beta 404 error
-    client = genai.Client(api_key=api_key, http_options={'api_version': 'v1'})
+    # --- THE CRITICAL "MAP" FIX ---
+    # This forces the library to use 'v1' instead of 'v1beta'
+    os.environ["GOOGLE_API_VERSION"] = "v1" 
+    
+    genai.configure(api_key=api_key, transport='rest')
+    
+    # 2. Use the stable model name
+    model = genai.GenerativeModel('gemini-1.5-flash')
     
     st.title("🧠 GUET Smart Vision")
-    uploaded_file = st.file_uploader("Upload Image", type=["jpg", "jpeg", "png"])
+    uploaded_file = st.file_uploader("Upload an image...", type=["jpg", "jpeg", "png"])
     
     if uploaded_file and st.button("Identify"):
         img = Image.open(uploaded_file)
-        try:
-            # 3. Use the most stable model alias
-            response = client.models.generate_content(
-                model='gemini-1.5-flash', 
-                contents=img
-            )
-            st.success("### Analysis Result:")
-            st.write(response.text)
-        except Exception as e:
-            st.error(f"Error: {e}")
-            st.info("Check if your VPN is set to 'Singapore' or 'USA'.")
+        st.image(img, use_container_width=True)
+        
+        with st.spinner("Talking to Google v1 Servers..."):
+            try:
+                # Direct call to the model
+                response = model.generate_content(img)
+                st.success("### AI Analysis:")
+                st.write(response.text)
+            except Exception as e:
+                st.error(f"Deployment Error: {e}")
+                st.info("If 404 persists, try switching VPN to Singapore or USA-GPT nodes.")
 else:
-    st.error("API Key missing in Streamlit Secrets!")
+    st.error("API Key not found! Go to Settings -> Secrets.")
