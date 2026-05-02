@@ -13,7 +13,7 @@ if not api_key or "AIza" not in api_key:
 
 # Initialize the Google AI model
 genai.configure(api_key=api_key)
-model = genai.GenerativeModel('gemini-1.5-flash')
+model = genai.GenerativeModel('gemini-1.5-flash-latest')
 
 # --- 2. USER INTERFACE ---
 st.set_page_config(page_title="GUET Smart Vision", page_icon="🤖")
