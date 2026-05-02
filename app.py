@@ -1,36 +1,52 @@
 import streamlit as st
-import google.generativeai as genai
+import requests
+import base64
 from PIL import Image
-import os
+import io
 
-# 1. Secure Setup
+# 1. Setup
 api_key = st.secrets.get("GOOGLE_API_KEY")
 
-if api_key:
-    # --- THE CRITICAL "MAP" FIX ---
-    # This forces the library to use 'v1' instead of 'v1beta'
-    os.environ["GOOGLE_API_VERSION"] = "v1" 
+def analyze_image(image_bytes, api_key):
+    # This URL forces the stable v1 version and bypasses the library 404
+    url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={api_key}"
     
-    genai.configure(api_key=api_key, transport='rest')
+    headers = {'Content-Type': 'application/json'}
     
-    # 2. Use the stable model name
-    model = genai.GenerativeModel('models/gemini-1.5-flash-latest')
+    # Convert image to base64
+    encoded_image = base64.b64encode(image_bytes).decode('utf-8')
+    
+    payload = {
+        "contents": [{
+            "parts": [
+                {"text": "What is in this image? Describe it briefly."},
+                {"inline_data": {"mime_type": "image/jpeg", "data": encoded_image}}
+            ]
+        }]
+    }
+    
+    response = requests.post(url, headers=headers, json=payload)
+    return response.json()
 
-    st.title("🧠 GUET Smart Vision")
-    uploaded_file = st.file_uploader("Upload an image...", type=["jpg", "jpeg", "png"])
+st.title("🧠 GUET Smart Vision (Direct Mode)")
+
+uploaded_file = st.file_uploader("Upload Image", type=["jpg", "jpeg", "png"])
+
+if uploaded_file:
+    img = Image.open(uploaded_file)
+    st.image(img)
     
-    if uploaded_file and st.button("Identify"):
-        img = Image.open(uploaded_file)
-        st.image(img, use_container_width=True)
+    if st.button("Identify Now"):
+        # Convert PIL image to bytes
+        buf = io.BytesIO()
+        img.save(buf, format="JPEG")
+        byte_im = buf.getvalue()
         
-        with st.spinner("Talking to Google v1 Servers..."):
-            try:
-                # Direct call to the model
-                response = model.generate_content(img)
-                st.success("### AI Analysis:")
-                st.write(response.text)
-            except Exception as e:
-                st.error(f"Deployment Error: {e}")
-                st.info("If 404 persists, try switching VPN to Singapore or USA-GPT nodes.")
-else:
-    st.error("API Key not found! Go to Settings -> Secrets.")
+        with st.spinner("Talking directly to Google..."):
+            result = analyze_image(byte_im, api_key)
+            
+            if "candidates" in result:
+                text = result['candidates'][0]['content']['parts'][0]['text']
+                st.success(text)
+            else:
+                st.error(f"Server Response: {result}")
