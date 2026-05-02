@@ -42,4 +42,3 @@ if uploaded_file:
                 # If the 404 persists, this captures the detailed technical reason
                 st.error(f"An error occurred: {e}")
                 st.info("Technical Tip: Double-check that your API Key is copied correctly from Google AI Studio.")
-            
