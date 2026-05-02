@@ -20,7 +20,7 @@ model, transform, labels = load_vit_model()
 
 # --- STEP 2: UI DESIGN ---
 st.set_page_config(page_title="GUET AI Lens", layout="centered")
-st.title("🛡️ Vision Transformer (ViT) Smart Lens")
+st.title("🛡️ GUET Smart Lens")
 
 uploaded_file = st.file_uploader("Upload an image...", type=["jpg", "jpeg", "png"])
 
